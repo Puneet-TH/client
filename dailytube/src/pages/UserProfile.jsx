@@ -35,11 +35,13 @@ const UserProfile = () => {
 
       setProfile(profileRes.data.data);
       setVideos(videosRes.data.data || []);
-      setSubscribersCount(profileRes.data.data.subscribersCount || 0);
+      setSubscribersCount(profileRes.data.data.SubscribersCount || 0);
+      console.log(profileRes.data.data.SubscribersCount);
 
       // Check if current user is subscribed to this profile
       if (currentUser && profileRes.data.data._id !== currentUser._id) {
         checkSubscriptionStatus(profileRes.data.data._id);
+        console.log(profileRes.data.data._id);
       }
     } catch (error) {
       toast.error(formatError(error));
@@ -48,30 +50,60 @@ const UserProfile = () => {
     }
   };
 
-  const checkSubscriptionStatus = async (userId) => {
-    try {
-      const response = await api.get(`/subscriptions/c/${userId}`);
-      setIsSubscribed(response.data.data);
-    } catch (error) {
-      // Ignore errors for checking subscription status
-    }
-  };
 
-  const toggleSubscription = async () => {
-    if (!currentUser) {
-      toast.error('Please login to subscribe');
-      return;
-    }
 
-    try {
-      await api.post(`/subscriptions/c/${profile._id}`);
-      setIsSubscribed(!isSubscribed);
-      setSubscribersCount(prev => prev + (isSubscribed ? -1 : 1));
-      toast.success(isSubscribed ? 'Unsubscribed successfully' : 'Subscribed successfully');
-    } catch (error) {
-      toast.error(formatError(error));
-    }
-  };
+const checkSubscriptionStatus = async (userId) => {
+  try {
+    const response = await api.get(`/subscriptions/c/${userId}`);
+    const subscriptions = response.data?.data || [];
+    const isSub = subscriptions.some(
+      (sub) => sub.subscriber === currentUser?._id && sub.channel === userId
+    );
+    setIsSubscribed(isSub);
+  } catch (error) {
+    console.error("Error checking subscription status:", error);
+    setIsSubscribed(false);
+  }
+
+
+const toggleSubscription = async () => {
+  if (!profile) return;
+  try {
+    await api.post(`/subscriptions/c/${profile._id}`);
+    // Re-fetch profile to get updated SubscribersCount and isSubscribed
+    const profileRes = await api.get(`/users/c/${profile.username}`);
+    setProfile(profileRes.data.data);
+    setSubscribersCount(profileRes.data.data.SubscribersCount || 0);
+    setIsSubscribed(profileRes.data.data.isSubscribed || false);
+    toast.success(
+      profileRes.data.data.isSubscribed ? 'Subscribed successfully' : 'Unsubscribed successfully'
+    );
+  } catch (error) {
+    console.error("Error toggling subscription:", error);
+    toast.error(formatError(error));
+  }
+};
+
+
+  try {
+    const response = await api.post(`/subscriptions/c/${profile._id}`);
+
+    setIsSubscribed((prev) => {
+      const newStatus = !prev;
+
+      setSubscribersCount((count) =>
+        newStatus ? count + 1 : Math.max(count - 1, 0) // prevent negative
+      );
+
+      toast.success(newStatus ? 'Subscribed successfully' : 'Unsubscribed successfully');
+      return newStatus;
+    });
+
+  } catch (error) {
+    console.error("Error toggling subscription:", error);
+    toast.error(formatError(error));
+  }
+};
 
   if (loading) {
     return (
@@ -100,7 +132,7 @@ const UserProfile = () => {
   const isOwnProfile = currentUser && currentUser._id === profile._id;
 
   return (
-    <div className="min-h-screen bg-zinc-900 pt-16">
+    <div className="min-h-screen bg-zinc-900 pt-16 lg:ml-64">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Profile Header */}
         <div className="mb-8">

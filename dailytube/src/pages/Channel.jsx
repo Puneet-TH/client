@@ -100,7 +100,7 @@ const Channel = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white pt-16">
+    <div className="min-h-screen bg-black text-white pt-16 lg:ml-64">
       {/* Channel Header */}
       <div className="relative">
         {/* Cover Image */}

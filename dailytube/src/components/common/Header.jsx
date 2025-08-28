@@ -373,7 +373,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
       </header>
 
       {/* Desktop Sidebar - Hidden on mobile */}
-      <div className={`hidden lg:block fixed top-16 left-0 h-full w-64 bg-zinc-900 transform transition-transform duration-300 z-40 ${
+      <div className={`hidden lg:block fixed top-16 left-0 h-full w-64 bg-zinc-900 transform transition-transform duration-300 z-30 ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       } lg:translate-x-0`}>
         <nav className="p-4 space-y-2">
