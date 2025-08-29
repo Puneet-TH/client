@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { AuthContext } from '../contexts/AuthContext';
+import React, { useState, useEffect} from 'react';
 import { useParams } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { toast } from 'react-hot-toast';
@@ -10,17 +9,10 @@ import api from '../services/api';
 
 const Channel = () => {
   const { username } = useParams();
-  const { user: currentUser } = useContext(AuthContext);
   const [channelData, setChannelData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('videos');
-
-  // Debug: log token and currentUser
-  useEffect(() => {
-    console.log('TOKEN:', localStorage.getItem('token'));
-    console.log('currentUser:', currentUser);
-  }, [currentUser]);
 
   useEffect(() => {
     fetchChannelData();
@@ -31,7 +23,6 @@ const Channel = () => {
       setLoading(true);
       setError(null); // Clear any previous errors
       const response = await api.get(`/users/c/${username}`);
-      console.log(response)
       if (response.data && response.data.data) {
         setChannelData(response.data.data);
       } else {
@@ -62,22 +53,18 @@ const Channel = () => {
 
   const handleSubscribe = async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        toast.error('Please login to subscribe');
-        return;
-      }
-
       await api.post(`/subscriptions/c/${channelData._id}`);
-
       // Re-fetch channel data to get updated isSubscribed and SubscribersCount
       await fetchChannelData();
-
       toast.success(
         channelData && channelData.isSubscribed ? 'Unsubscribed' : 'Subscribed!'
       );
     } catch (error) {
-      toast.error(formatError(error));
+      if (error.response && error.response.status === 401) {
+        toast.error('Please login to subscribe');
+      } else {
+        toast.error(formatError(error));
+      }
     }
   };
 
