@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { AuthContext } from '../contexts/AuthContext';
 import { useParams } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { toast } from 'react-hot-toast';
@@ -9,10 +10,17 @@ import api from '../services/api';
 
 const Channel = () => {
   const { username } = useParams();
+  const { user: currentUser } = useContext(AuthContext);
   const [channelData, setChannelData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('videos');
+
+  // Debug: log token and currentUser
+  useEffect(() => {
+    console.log('TOKEN:', localStorage.getItem('token'));
+    console.log('currentUser:', currentUser);
+  }, [currentUser]);
 
   useEffect(() => {
     fetchChannelData();
@@ -62,15 +70,12 @@ const Channel = () => {
 
       await api.post(`/subscriptions/c/${channelData._id}`);
 
-      setChannelData(prev => ({
-        ...prev,
-        isSubscribed: !prev.isSubscribed,
-        SubscribersCount: prev.isSubscribed 
-          ? prev.SubscribersCount - 1 
-          : prev.SubscribersCount + 1
-      }));
+      // Re-fetch channel data to get updated isSubscribed and SubscribersCount
+      await fetchChannelData();
 
-      toast.success(channelData.isSubscribed ? 'Unsubscribed' : 'Subscribed!');
+      toast.success(
+        channelData && channelData.isSubscribed ? 'Unsubscribed' : 'Subscribed!'
+      );
     } catch (error) {
       toast.error(formatError(error));
     }
