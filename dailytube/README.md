@@ -1,4 +1,7 @@
- # DailyTube Frontend
+
+# DailyTube Frontend
+
+🚀 **Live Demo:** [https://dailytube.vercel.app/](https://dailytube.vercel.app/)
 
  A modern, responsive React (Vite) frontend for the DailyTube video-sharing platform. This app provides a YouTube-like user experience with video browsing, channel pages, subscriptions, playlists, comments, and more.
 
