@@ -1,6 +1,7 @@
 # DailyTube Frontend
 
 🚀 **Live Demo:** [https://dailytube.vercel.app/](https://dailytube.vercel.app/)
+🚀 **Its backend:** [https://github.com/Puneet-TH/backend](https://github.com/Puneet-TH/backend)
 
 
  A modern, responsive React (Vite) frontend for the DailyTube video-sharing platform. This app provides a YouTube-like user experience with video browsing, channel pages, subscriptions, playlists, comments, and more.
