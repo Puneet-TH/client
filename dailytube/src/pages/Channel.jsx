@@ -23,6 +23,7 @@ const Channel = () => {
       setLoading(true);
       setError(null); // Clear any previous errors
       const response = await api.get(`/users/c/${username}`);
+      console.log(response)
       if (response.data && response.data.data) {
         setChannelData(response.data.data);
       } else {
